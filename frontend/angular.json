@@ -30,11 +30,15 @@
             "inlineStyleLanguage": "scss",
             "assets": [
               "src/favicon.ico",
-              "src/assets"
+              "src/assets",
+              {
+                "glob": "**/*",
+                "input": "node_modules/monaco-editor/min/vs",
+                "output": "assets/vs"
+              }
             ],
             "styles": [
-              "src/styles.scss",
-              "node_modules/monaco-editor/min/vs/editor/editor.main.css"
+              "src/styles.scss"
             ],
             "scripts": [],
             "allowedCommonJsDependencies": ["monaco-editor"]
