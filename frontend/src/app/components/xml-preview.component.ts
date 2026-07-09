@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { EditorStore } from '../editor.store';
 import { XslFoGenerator } from '../xsl-fo-generator.service';
 import { ToastService } from '../toast.service';
-import * as monaco from 'monaco-editor';
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 
 @Component({
   selector: 'app-xml-preview',
