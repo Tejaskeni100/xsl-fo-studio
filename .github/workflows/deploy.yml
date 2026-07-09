@@ -1,61 +1,23 @@
-name: Deploy to GitHub Pages
+- name: Install dependencies
+  run: |
+    cd frontend
+    npm ci
 
-on:
-  push:
-    branches: [main]
-  workflow_dispatch:
+- name: Build (production)
+  env:
+    REPO_NAME: ${{ github.event.repository.name }}
+  run: |
+    cd frontend
+    npx ng build \
+      --configuration production \
+      --base-href="/${REPO_NAME}/"
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
+- name: Prepare Pages artifact (SPA fallback + .nojekyll)
+  run: |
+    cp frontend/dist/xsl-fo-studio/browser/index.html frontend/dist/xsl-fo-studio/browser/404.html
+    touch frontend/dist/xsl-fo-studio/browser/.nojekyll
 
-concurrency:
-  group: "pages"
-  cancel-in-progress: true
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22 # नवीन आणि सुरक्षित Node व्हर्जन
-          cache: npm # एरर फिक्स करण्यासाठी yarn ऐवजी npm केले
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build (production)
-        env:
-          REPO_NAME: ${{ github.event.repository.name }}
-        run: |
-          npx ng build \
-            --configuration production \
-            --base-href="/${REPO_NAME}/"
-
-      - name: Prepare Pages artifact (SPA fallback + .nojekyll)
-        run: |
-          # तुमच्या रिपॉझिटरीचे नाव xsl-fo-studio आहे, त्यानुसार पाथ सेट केला आहे
-          cp dist/xsl-fo-studio/browser/index.html dist/xsl-fo-studio/browser/404.html
-          touch dist/xsl-fo-studio/browser/.nojekyll
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: dist/xsl-fo-studio/browser
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+- name: Upload artifact
+  uses: actions/upload-pages-artifact@v3
+  with:
+    path: frontend/dist/xsl-fo-studio/browser
