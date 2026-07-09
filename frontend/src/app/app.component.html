@@ -1,0 +1,79 @@
+<div class="app-shell">
+  <!-- Header -->
+  <header class="app-header" data-testid="app-header">
+    <div class="brand">
+      <div class="logo-mark">
+        <span class="mono lt">&lt;</span><span class="mono gt">/&gt;</span>
+      </div>
+      <div class="brand-txt">
+        <div class="brand-name display">XSL-FO Studio</div>
+        <div class="brand-sub mono">visual · xsl-fo 1.0 · frontend-only</div>
+      </div>
+    </div>
+
+    <div class="header-center">
+      <div class="tabs" data-testid="page-tabs">
+        <button *ngFor="let p of state().pages"
+                class="tab"
+                [class.active]="state().activePageId === p.id"
+                (click)="selectPage(p.id)"
+                [attr.data-testid]="'page-tab-' + p.id">
+          <span class="material-symbols-outlined">description</span>
+          <span class="tab-name">{{ p.name }}</span>
+          <span *ngIf="state().pages.length > 1" class="tab-close" (click)="$event.stopPropagation(); removePage(p.id)">×</span>
+        </button>
+        <button class="add-page" (click)="addPage()" data-testid="add-page-btn" title="Add page">
+          <span class="material-symbols-outlined">add</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <button class="icon-btn" (click)="store.undo()" [disabled]="!store.canUndo()" title="Undo (Ctrl+Z)" data-testid="undo-btn">
+        <span class="material-symbols-outlined">undo</span>
+      </button>
+      <button class="icon-btn" (click)="store.redo()" [disabled]="!store.canRedo()" title="Redo (Ctrl+Shift+Z)" data-testid="redo-btn">
+        <span class="material-symbols-outlined">redo</span>
+      </button>
+
+      <div class="divider"></div>
+
+      <button class="icon-btn" [class.active]="state().showGrid" (click)="store.toggleGrid()" title="Toggle grid" data-testid="grid-toggle">
+        <span class="material-symbols-outlined">grid_on</span>
+      </button>
+      <button class="icon-btn" [class.active]="state().showRulers" (click)="store.toggleRulers()" title="Toggle rulers" data-testid="rulers-toggle">
+        <span class="material-symbols-outlined">straighten</span>
+      </button>
+
+      <div class="divider"></div>
+
+      <button class="icon-btn" (click)="zoomOut()" title="Zoom out" data-testid="zoom-out">
+        <span class="material-symbols-outlined">remove</span>
+      </button>
+      <button class="zoom-val mono" (click)="zoomReset()" data-testid="zoom-value" title="Reset zoom">
+        {{ (state().zoom * 100) | number:'1.0-0' }}%
+      </button>
+      <button class="icon-btn" (click)="zoomIn()" title="Zoom in" data-testid="zoom-in">
+        <span class="material-symbols-outlined">add</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main 3-panel layout -->
+  <div class="main-grid">
+    <app-toolbox></app-toolbox>
+    <app-canvas></app-canvas>
+    <app-properties></app-properties>
+    <app-xml-preview></app-xml-preview>
+  </div>
+
+  <!-- Toasts -->
+  <div class="toast-container">
+    <div *ngFor="let t of toasts()" class="toast" [attr.data-kind]="t.kind">
+      <span class="material-symbols-outlined">
+        {{ t.kind === 'success' ? 'check_circle' : t.kind === 'error' ? 'error' : 'info' }}
+      </span>
+      <span>{{ t.text }}</span>
+    </div>
+  </div>
+</div>

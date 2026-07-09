@@ -1,0 +1,27 @@
+<aside class="xml-panel" [class.collapsed]="collapsed" data-testid="xml-preview-panel">
+  <div class="xml-head">
+    <div class="head-left">
+      <span class="dot"></span>
+      <span class="title">Live XSL-FO 1.0 Output</span>
+    </div>
+    <div class="head-right">
+      <span class="meta mono">{{ lineCount }} lines · {{ byteSize }} B</span>
+      <button class="icon-btn" (click)="toggleCollapse()" data-testid="xml-toggle-collapse" title="Collapse">
+        <span class="material-symbols-outlined">{{ collapsed ? 'chevron_left' : 'chevron_right' }}</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="editor-shell">
+    <div class="editor" #editorHost data-testid="xml-monaco"></div>
+  </div>
+
+  <div class="xml-actions">
+    <button class="btn-ghost" (click)="copyXml()" data-testid="xml-copy-btn">
+      <span class="material-symbols-outlined">content_copy</span> Copy XML
+    </button>
+    <button class="btn-primary" (click)="downloadXsl()" data-testid="xml-download-btn">
+      <span class="material-symbols-outlined">download</span> Download .xsl
+    </button>
+  </div>
+</aside>

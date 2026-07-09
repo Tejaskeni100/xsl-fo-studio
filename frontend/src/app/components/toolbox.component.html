@@ -1,0 +1,152 @@
+<aside class="toolbox" data-testid="toolbox-panel">
+  <div class="section">
+    <div class="section-head">
+      <span class="idx">01</span>
+      <span class="label">Document</span>
+    </div>
+    <div class="section-body">
+      <label class="field-label">Page preset</label>
+      <div class="preset-grid">
+        <button *ngFor="let p of presets"
+                class="preset-btn"
+                [class.active]="state().pageSizeKey === p.key"
+                (click)="onPreset(p.key)"
+                [attr.data-testid]="'page-preset-' + p.key">
+          <div class="preset-name">{{ p.key }}</div>
+          <div class="preset-dim mono">{{ p.widthPt }} × {{ p.heightPt }} pt</div>
+        </button>
+        <button class="preset-btn"
+                [class.active]="state().pageSizeKey === 'Custom'"
+                (click)="onPreset('Custom')"
+                data-testid="page-preset-Custom">
+          <div class="preset-name">Custom</div>
+          <div class="preset-dim mono">— × —</div>
+        </button>
+      </div>
+
+      <div class="row two">
+        <div>
+          <label class="field-label">Width</label>
+          <input class="input mono" type="number" step="0.1" min="10"
+                 [(ngModel)]="widthInUnit"
+                 data-testid="page-width-input"/>
+        </div>
+        <div>
+          <label class="field-label">Height</label>
+          <input class="input mono" type="number" step="0.1" min="10"
+                 [(ngModel)]="heightInUnit"
+                 data-testid="page-height-input"/>
+        </div>
+      </div>
+
+      <label class="field-label">Unit</label>
+      <select class="select mono" [ngModel]="state().unit" (ngModelChange)="store.setUnit($event)" data-testid="unit-select">
+        <option *ngFor="let u of units" [value]="u">{{ u }}</option>
+      </select>
+
+      <label class="field-label" style="margin-top:14px;">Background</label>
+      <button class="btn-ghost full" (click)="bgFile.click()" data-testid="upload-bg-btn">
+        <span class="material-symbols-outlined">image</span>
+        {{ store.activePage().backgroundDataUrl ? 'Replace background' : 'Upload background' }}
+      </button>
+      <button *ngIf="store.activePage().backgroundDataUrl"
+              class="btn-ghost full danger-ghost" (click)="clearBackground()" data-testid="clear-bg-btn">
+        <span class="material-symbols-outlined">delete</span> Remove background
+      </button>
+      <input #bgFile type="file" accept="image/png,image/jpeg" hidden (change)="onUpload(bgFile, 'bg')"/>
+
+      <label class="field-label" style="margin-top:10px;">Background variable</label>
+      <input class="input mono" type="text"
+             [ngModel]="store.activePage().backgroundPlaceholder"
+             (ngModelChange)="store.setBackgroundPlaceholder($event)"
+             placeholder="backgroundImage"
+             data-testid="bg-placeholder-input"/>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <span class="idx">02</span>
+      <span class="label">Add elements</span>
+    </div>
+    <div class="section-body">
+      <button class="add-btn" (click)="addText()" data-testid="add-text-btn">
+        <span class="material-symbols-outlined">text_fields</span>
+        <div class="txt">
+          <div class="t">Add text block</div>
+          <div class="s">Static or dynamic placeholder</div>
+        </div>
+      </button>
+      <button class="add-btn" (click)="askAddImage()" data-testid="add-image-btn">
+        <span class="material-symbols-outlined">add_photo_alternate</span>
+        <div class="txt">
+          <div class="t">Add image block</div>
+          <div class="s">Overlay logo, photo, signature</div>
+        </div>
+      </button>
+      <input #imgFile type="file" accept="image/png,image/jpeg" hidden (change)="onUpload(imgFile, 'img')"/>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <span class="idx">03</span>
+      <span class="label">XML image src</span>
+    </div>
+    <div class="section-body">
+      <div class="mode-grid">
+        <button *ngFor="let m of modes"
+                class="mode-btn"
+                [class.active]="state().imagePathMode === m.key"
+                (click)="onImagePathMode(m.key)"
+                [attr.data-testid]="'image-mode-' + m.key">
+          <div class="m-lbl">{{ m.label }}</div>
+          <div class="m-hint mono">{{ m.hint }}</div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <span class="idx">04</span>
+      <span class="label">Templates</span>
+    </div>
+    <div class="section-body">
+      <div class="row two">
+        <input class="input" type="text" placeholder="Template name…" [(ngModel)]="templateName" data-testid="template-name-input"/>
+        <button class="btn-primary" (click)="saveTemplate()" data-testid="save-template-btn">
+          <span class="material-symbols-outlined">bookmark_add</span> Save
+        </button>
+      </div>
+
+      <div class="templates-list" *ngIf="templates().length > 0; else emptyT" data-testid="templates-list">
+        <button *ngFor="let t of templates()" class="tpl-item" (click)="loadTemplate(t.id)"
+                [attr.data-testid]="'template-item-' + t.id">
+          <div class="tpl-info">
+            <div class="tpl-name">{{ t.name }}</div>
+            <div class="tpl-date mono">{{ t.savedAt | date:'MMM d, HH:mm' }}</div>
+          </div>
+          <span class="icon-btn" (click)="deleteTemplate(t.id, $event)"><span class="material-symbols-outlined">delete</span></span>
+        </button>
+      </div>
+      <ng-template #emptyT>
+        <div class="empty-tpl">No saved templates yet.</div>
+      </ng-template>
+
+      <div class="row two" style="margin-top:10px;">
+        <button class="btn-ghost" (click)="exportJSON()" data-testid="export-json-btn">
+          <span class="material-symbols-outlined">download</span> Export JSON
+        </button>
+        <button class="btn-ghost" (click)="importFile.click()" data-testid="import-json-btn">
+          <span class="material-symbols-outlined">upload</span> Import
+        </button>
+      </div>
+      <input #importFile type="file" accept="application/json" hidden (change)="importJSON(importFile)"/>
+
+      <button class="btn-ghost full" style="margin-top:6px;" (click)="newDoc()" data-testid="new-doc-btn">
+        <span class="material-symbols-outlined">note_add</span> New document
+      </button>
+    </div>
+  </div>
+</aside>

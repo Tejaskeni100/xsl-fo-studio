@@ -1,0 +1,94 @@
+<div class="canvas-workspace" #scroller (click)="onCanvasClick($event)" data-testid="canvas-workspace">
+  <div class="workspace-inner" [style.transform]="'scale(' + zoom + ')'">
+    <!-- Rulers -->
+    <div class="ruler-h" *ngIf="state().showRulers" [style.width.px]="pxWidth">
+      <span *ngFor="let i of [].constructor(Math.ceil(pxWidth / 50)); let idx = index"
+            class="tick" [style.left.px]="idx * 50">{{ idx * 50 }}</span>
+    </div>
+    <div class="ruler-v" *ngIf="state().showRulers" [style.height.px]="pxHeight">
+      <span *ngFor="let i of [].constructor(Math.ceil(pxHeight / 50)); let idx = index"
+            class="tick" [style.top.px]="idx * 50">{{ idx * 50 }}</span>
+    </div>
+
+    <!-- Paper -->
+    <div class="paper"
+         [style.width.px]="pxWidth"
+         [style.height.px]="pxHeight"
+         [class.grid-on]="state().showGrid"
+         data-testid="canvas-paper">
+
+      <img *ngIf="page().backgroundDataUrl" class="bg-img" [src]="page().backgroundDataUrl" alt="background" draggable="false"/>
+
+      <!-- Elements -->
+      <div *ngFor="let el of page().elements; trackBy: trackById"
+           class="canvas-element"
+           [class.selected]="isSelected(el.id)"
+           [attr.data-testid]="'canvas-element-' + el.id"
+           [attr.data-element-type]="el.type"
+           [style.left.px]="el.xPt * PX_PER_PT"
+           [style.top.px]="el.yPt * PX_PER_PT"
+           [style.width.px]="el.widthPt * PX_PER_PT"
+           [style.height.px]="el.heightPt * PX_PER_PT"
+           (mousedown)="onElementMouseDown($event, el)"
+           (click)="selectElement($event, el.id)">
+
+        <ng-container *ngIf="el.type === 'text'">
+          <ng-container *ngIf="editingId === el.id; else textView">
+            <textarea class="inline-edit"
+                      [(ngModel)]="editingText"
+                      (blur)="stopEditing()"
+                      (click)="$event.stopPropagation()"
+                      (mousedown)="$event.stopPropagation()"
+                      [style.font-family]="asText(el).fontFamily"
+                      [style.font-size.px]="asText(el).fontSize * PX_PER_PT"
+                      [style.font-weight]="asText(el).fontWeight"
+                      [style.font-style]="asText(el).fontStyle"
+                      [style.color]="asText(el).color"
+                      [style.text-align]="asText(el).align">
+            </textarea>
+          </ng-container>
+          <ng-template #textView>
+            <div class="text-view"
+                 (dblclick)="beginEditText(asText(el), $event)"
+                 [style.font-family]="asText(el).fontFamily"
+                 [style.font-size.px]="asText(el).fontSize * PX_PER_PT"
+                 [style.font-weight]="asText(el).fontWeight"
+                 [style.font-style]="asText(el).fontStyle"
+                 [style.color]="asText(el).color"
+                 [style.text-align]="asText(el).align">
+              <ng-container *ngIf="asText(el).isDynamic; else static">
+                <span class="dyn-chip">&lt;xsl:value-of&gt;</span>
+                <span class="dyn-name">{{ asText(el).dynamicField }}</span>
+              </ng-container>
+              <ng-template #static>{{ asText(el).content }}</ng-template>
+            </div>
+          </ng-template>
+        </ng-container>
+
+        <img *ngIf="el.type === 'image'"
+             class="img-view"
+             [src]="asImage(el).dataUrl"
+             draggable="false"
+             alt="element image"/>
+
+        <!-- Resize handles -->
+        <ng-container *ngIf="isSelected(el.id)">
+          <div class="handle nw" (mousedown)="onHandleMouseDown($event, el, 'nw')"></div>
+          <div class="handle n"  (mousedown)="onHandleMouseDown($event, el, 'n')"></div>
+          <div class="handle ne" (mousedown)="onHandleMouseDown($event, el, 'ne')"></div>
+          <div class="handle e"  (mousedown)="onHandleMouseDown($event, el, 'e')"></div>
+          <div class="handle se" (mousedown)="onHandleMouseDown($event, el, 'se')"></div>
+          <div class="handle s"  (mousedown)="onHandleMouseDown($event, el, 's')"></div>
+          <div class="handle sw" (mousedown)="onHandleMouseDown($event, el, 'sw')"></div>
+          <div class="handle w"  (mousedown)="onHandleMouseDown($event, el, 'w')"></div>
+        </ng-container>
+      </div>
+
+      <!-- Watermark when empty -->
+      <div class="empty-hint" *ngIf="!page().backgroundDataUrl && page().elements.length === 0">
+        <div class="hint-title display">Blank canvas</div>
+        <div class="hint-sub">Upload a background or add a text block to begin.</div>
+      </div>
+    </div>
+  </div>
+</div>

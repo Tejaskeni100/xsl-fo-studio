@@ -1,0 +1,164 @@
+<aside class="props" data-testid="properties-panel">
+  <div class="panel-title">
+    <span>Properties</span>
+    <span *ngIf="selected()" class="tag-chip" data-testid="selected-tag">
+      <span class="material-symbols-outlined" style="font-size:12px;">
+        {{ selected()!.type === 'text' ? 'text_fields' : 'image' }}
+      </span>
+      {{ selected()!.type === 'text' ? 'Text block' : 'Image block' }}
+    </span>
+  </div>
+
+  <ng-container *ngIf="selected() as sel; else empty">
+    <div class="p-body">
+      <!-- Position & size -->
+      <div class="grp">
+        <div class="grp-title">Transform</div>
+        <div class="grid-4">
+          <div>
+            <label class="field-label">X (pt)</label>
+            <input class="input mono" type="number" step="1" [ngModel]="sel.xPt | number:'1.0-2'" (ngModelChange)="update({ xPt: +$event })" data-testid="prop-x"/>
+          </div>
+          <div>
+            <label class="field-label">Y (pt)</label>
+            <input class="input mono" type="number" step="1" [ngModel]="sel.yPt | number:'1.0-2'" (ngModelChange)="update({ yPt: +$event })" data-testid="prop-y"/>
+          </div>
+          <div>
+            <label class="field-label">W (pt)</label>
+            <input class="input mono" type="number" step="1" [ngModel]="sel.widthPt | number:'1.0-2'" (ngModelChange)="update({ widthPt: +$event })" data-testid="prop-w"/>
+          </div>
+          <div>
+            <label class="field-label">H (pt)</label>
+            <input class="input mono" type="number" step="1" [ngModel]="sel.heightPt | number:'1.0-2'" (ngModelChange)="update({ heightPt: +$event })" data-testid="prop-h"/>
+          </div>
+        </div>
+      </div>
+
+      <!-- TEXT -->
+      <ng-container *ngIf="sel.type === 'text'">
+        <div class="grp">
+          <div class="grp-title">Content</div>
+          <div class="mode-row">
+            <button class="pill" [class.active]="!asText(sel).isDynamic" (click)="update({ isDynamic: false })" data-testid="mode-static">Static</button>
+            <button class="pill" [class.active]="asText(sel).isDynamic" (click)="update({ isDynamic: true })" data-testid="mode-dynamic">
+              &lt;xsl:value-of/&gt;
+            </button>
+          </div>
+          <ng-container *ngIf="!asText(sel).isDynamic; else dynBlock">
+            <textarea class="input textarea" rows="3"
+                      [ngModel]="asText(sel).content"
+                      (ngModelChange)="update({ content: $event })"
+                      data-testid="prop-text-content"></textarea>
+          </ng-container>
+          <ng-template #dynBlock>
+            <label class="field-label">Field name (XPath)</label>
+            <input class="input mono" type="text"
+                   [ngModel]="asText(sel).dynamicField"
+                   (ngModelChange)="update({ dynamicField: $event })"
+                   placeholder="fieldName"
+                   data-testid="prop-dynamic-field"/>
+            <div class="dyn-preview mono">&lt;xsl:value-of select="{{ asText(sel).dynamicField }}"/&gt;</div>
+          </ng-template>
+        </div>
+
+        <div class="grp">
+          <div class="grp-title">Typography</div>
+          <label class="field-label">Font family</label>
+          <select class="select mono"
+                  [ngModel]="asText(sel).fontFamily"
+                  (ngModelChange)="update({ fontFamily: $event })"
+                  data-testid="prop-font-family">
+            <option *ngFor="let f of fonts" [value]="f">{{ f }}</option>
+          </select>
+
+          <div class="grid-2">
+            <div>
+              <label class="field-label">Size (pt)</label>
+              <input class="input mono" type="number" step="1" min="4" max="200"
+                     [ngModel]="asText(sel).fontSize"
+                     (ngModelChange)="update({ fontSize: +$event })"
+                     data-testid="prop-font-size"/>
+            </div>
+            <div>
+              <label class="field-label">Color</label>
+              <div class="color-wrap">
+                <input type="color" [ngModel]="asText(sel).color" (ngModelChange)="update({ color: $event })" data-testid="prop-color"/>
+                <input class="input mono" type="text" [ngModel]="asText(sel).color" (ngModelChange)="update({ color: $event })"/>
+              </div>
+            </div>
+          </div>
+
+          <label class="field-label">Style</label>
+          <div class="btn-row">
+            <button class="pill" [class.active]="asText(sel).fontWeight==='bold'" (click)="update({ fontWeight: asText(sel).fontWeight==='bold'?'normal':'bold' })" data-testid="prop-bold">
+              <span class="material-symbols-outlined">format_bold</span>
+            </button>
+            <button class="pill" [class.active]="asText(sel).fontStyle==='italic'" (click)="update({ fontStyle: asText(sel).fontStyle==='italic'?'normal':'italic' })" data-testid="prop-italic">
+              <span class="material-symbols-outlined">format_italic</span>
+            </button>
+          </div>
+
+          <label class="field-label">Alignment</label>
+          <div class="btn-row">
+            <button class="pill" [class.active]="asText(sel).align==='left'" (click)="update({ align: 'left' })" data-testid="align-left">
+              <span class="material-symbols-outlined">format_align_left</span>
+            </button>
+            <button class="pill" [class.active]="asText(sel).align==='center'" (click)="update({ align: 'center' })" data-testid="align-center">
+              <span class="material-symbols-outlined">format_align_center</span>
+            </button>
+            <button class="pill" [class.active]="asText(sel).align==='right'" (click)="update({ align: 'right' })" data-testid="align-right">
+              <span class="material-symbols-outlined">format_align_right</span>
+            </button>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- IMAGE -->
+      <ng-container *ngIf="sel.type === 'image'">
+        <div class="grp">
+          <div class="grp-title">Image</div>
+          <label class="field-label">Placeholder variable name</label>
+          <input class="input mono" type="text"
+                 [ngModel]="asImage(sel).placeholderName"
+                 (ngModelChange)="update({ placeholderName: $event })"
+                 placeholder="userImage"
+                 data-testid="prop-image-placeholder"/>
+
+          <label class="field-label">Scaling</label>
+          <div class="btn-row">
+            <button class="pill" [class.active]="asImage(sel).scaling==='uniform'" (click)="update({ scaling: 'uniform' })" data-testid="scale-uniform">Uniform</button>
+            <button class="pill" [class.active]="asImage(sel).scaling==='non-uniform'" (click)="update({ scaling: 'non-uniform' })" data-testid="scale-non-uniform">Stretch</button>
+          </div>
+
+          <div class="thumb-wrap">
+            <img [src]="asImage(sel).dataUrl" alt="preview"/>
+            <div class="thumb-name mono">{{ asImage(sel).filename }}</div>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- Actions -->
+      <div class="grp actions">
+        <button class="btn-ghost" (click)="duplicate()" data-testid="prop-duplicate">
+          <span class="material-symbols-outlined">content_copy</span> Duplicate
+        </button>
+        <button class="btn-ghost danger-ghost" (click)="remove()" data-testid="prop-delete">
+          <span class="material-symbols-outlined">delete</span> Delete
+        </button>
+      </div>
+    </div>
+  </ng-container>
+
+  <ng-template #empty>
+    <div class="empty-state" data-testid="properties-empty">
+      <span class="material-symbols-outlined big">arrow_selector_tool</span>
+      <div class="e-title">Nothing selected</div>
+      <div class="e-sub">Select an element on the canvas to edit its properties, or add a new one from the toolbox.</div>
+      <div class="kbd-row">
+        <div class="kbd"><span class="k">DBL</span> Edit text</div>
+        <div class="kbd"><span class="k">DEL</span> Remove</div>
+        <div class="kbd"><span class="k">⌘Z</span> Undo</div>
+      </div>
+    </div>
+  </ng-template>
+</aside>
