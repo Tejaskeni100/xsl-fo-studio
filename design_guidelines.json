@@ -1,0 +1,127 @@
+{
+  "theme": "dark",
+  "app_type": "Developer Tool / WYSIWYG Editor",
+  "typography": {
+    "headings": {
+      "family": "Cabinet Grotesk, sans-serif",
+      "weights": ["500", "700"],
+      "usage": "Used sparingly for panel titles, empty state headings, and modal headers. Keep letter spacing tight (tracking-tight)."
+    },
+    "body": {
+      "family": "IBM Plex Sans, sans-serif",
+      "weights": ["400", "500", "600"],
+      "usage": "Primary UI font. Used for toolbox labels, button text, properties panel inputs. Clean, technical, and readable."
+    },
+    "code_and_data": {
+      "family": "JetBrains Mono, monospace",
+      "weights": ["400", "500"],
+      "usage": "Used for Monaco editor font, live XML preview, dimension inputs (e.g., '210mm'), and exact coordinates on the canvas."
+    }
+  },
+  "colors": {
+    "background": {
+      "app": "#0A0A0A",
+      "panel": "#111111",
+      "canvas_container": "#000000",
+      "canvas_paper": "#FFFFFF"
+    },
+    "borders": {
+      "default": "#27272A",
+      "focus": "#38BDF8",
+      "canvas_grid": "rgba(255, 255, 255, 0.05)"
+    },
+    "accents": {
+      "primary": "#38BDF8",
+      "primary_hover": "#0EA5E9",
+      "warning": "#EAB308",
+      "danger": "#EF4444"
+    },
+    "text": {
+      "primary": "#FFFFFF",
+      "secondary": "#A1A1AA",
+      "muted": "#71717A",
+      "code_tag": "#F472B6",
+      "code_attr": "#67E8F9"
+    }
+  },
+  "layouts": {
+    "main_structure": {
+      "type": "3-Panel Split View",
+      "description": "Full height (h-screen) with overflow hidden. Fixed sidebars, fluid center.",
+      "panels": {
+        "header_toolbar": "h-12 border-b border-zinc-800 bg-zinc-950 flex items-center justify-between px-4",
+        "left_toolbox": "w-[280px] border-r border-zinc-800 bg-zinc-950 flex flex-col h-[calc(100vh-3rem)] overflow-y-auto",
+        "center_canvas": "flex-1 flex flex-col h-[calc(100vh-3rem)] bg-black relative overflow-auto items-center justify-center bg-[radial-gradient(#27272A_1px,transparent_1px)] [background-size:20px_20px]",
+        "right_preview": "w-[400px] border-l border-zinc-800 bg-[#1E1E1E] flex flex-col h-[calc(100vh-3rem)]"
+      }
+    },
+    "surfaces": "Grid Borders strategy. The UI skeleton should be exposed. Use 1px subtle borders (border-zinc-800) between all list items, tool sections, and panels. No soft drop-shadows on the UI panels, just sharp technical lines."
+  },
+  "components": {
+    "canvas": {
+      "description": "The WYSIWYG area. The 'paper' element must have a stark white background (unless overridden) and sharp drop-shadow to contrast against the dark workspace.",
+      "interaction": "Elements on canvas should have a 1px dashed cyan border on hover, and a solid 2px cyan border with resize handles (small white squares with cyan border) on select."
+    },
+    "monaco_editor": {
+      "theme": "vs-dark",
+      "customization": "Bind to XSL-FO XML generation state. Background matches #1E1E1E.",
+      "read_only": "True. It's a live preview."
+    },
+    "toolbox_buttons": {
+      "style": "Flat, compact. No card-like shadows. Hover state triggers a bg-zinc-800/50 fill and white text.",
+      "active_state": "bg-zinc-800 text-sky-400 border-l-2 border-sky-400 rounded-none"
+    },
+    "properties_panel": {
+      "inputs": "Shadcn UI inputs customized to be compact (h-8). Dark bg (bg-zinc-900), no outer ring unless focused. Font sizes should be text-xs or text-sm for a dense, Pro-tool feel."
+    }
+  },
+  "visual_enhancers": {
+    "micro_interactions": "Fast hover states (transition-colors duration-150). Tooltips for all toolbar actions (Undo, Redo, Zoom).",
+    "empty_states": "Rich empty states in the left properties panel if no element is selected. Use an outline icon (Lucide) + muted text.",
+    "custom_cursors": "Use `cursor-crosshair` when an add-tool (Text/Image) is active, `cursor-move` on hover of draggable elements, `cursor-ew-resize` / `cursor-ns-resize` on handles."
+  },
+  "motion": {
+    "philosophy": "Utilitarian and rapid. Developer tools should not have slow bouncy animations.",
+    "duration": "100ms - 150ms",
+    "easing": "ease-out"
+  },
+  "accessibility": {
+    "contrast": "Ensure text-to-background contrast ratio > 4.5:1. Primary text must be pure white on the zinc-950 background.",
+    "focus": "All interactive elements must have a ring-2 ring-sky-400 focus state.",
+    "testing": "Add data-testid attributes to all major interactive elements (e.g., data-testid='toolbox-add-text', data-testid='canvas-element', data-testid='xml-preview-copy')."
+  },
+  "media": {
+    "placeholder_images": "Support base64 or placeholder URLs for testing XSL-FO generation. Allow background image upload via File API."
+  },
+  "3d_libraries": {
+    "usage": "Not applicable for this 2D professional editor. Stick to 2D transforms and DOM manipulation."
+  },
+  "image_urls": [
+    {
+      "url": "https://images.unsplash.com/photo-1755540735876-ff503cf594fe",
+      "category": "Canvas Background",
+      "description": "Ornate gold border on cream background, perfect to use as a placeholder certificate background inside the WYSIWYG canvas for testing."
+    }
+  ],
+  "UNIVERSAL GUIDELINES FOR MAIN AGENT": [
+    "You MUST build this as a frontend-only React + Tailwind + Shadcn application.",
+    "NO generic centered layouts. The tool must look like a professional dense IDE (like VSCode, Figma, or Framer).",
+    "Use Lucide React for sharp, technical icons.",
+    "Implement the 3-panel split correctly: fixed left toolbox/properties, fluid center with zoom/panning canvas, fixed right monaco preview.",
+    "Ensure Monaco Editor is loaded and bound to the state of the canvas to display live XSL-FO output.",
+    "Do NOT use pure transparent backgrounds on panels; use solid zinc-900 or zinc-950.",
+    "Use generic HTML5 Drag and Drop or a robust library like `react-rnd` (Draggable and Resizable) for the canvas elements.",
+    "Canvas element state (x, y, width, height, text/image content, formatting) must be managed centrally to power both the Canvas rendering and the Monaco XML generation.",
+    "Provide a dark theme UI but the WYSIWYG paper itself is light/white unless a dark background is uploaded.",
+    "Toasts must use Sonner for notifications (e.g., 'XML Copied to Clipboard', 'Template Saved').",
+    "Ensure the XSL-FO code generated matches the XSL-FO 1.0 standard structurally (<fo:root>, <fo:layout-master-set>, <fo:page-sequence>)."
+  ],
+  "instructions_to_main_agent": {
+    "step_1": "Setup the layout skeleton (Header/Toolbar at top, Left Sidebar for tools/properties, Center relative Canvas area, Right Sidebar for Monaco editor).",
+    "step_2": "Implement central state using Zustand or React Context to hold elements (text blocks, images) with their properties (x, y, w, h, styles, base64 data).",
+    "step_3": "Build the WYSIWYG canvas using react-rnd or custom drag logic, allowing elements to be positioned freely. Apply zoom via CSS transform scale() on the canvas container.",
+    "step_4": "Build properties panel context-awareness (clicking a text element updates the left panel to show font size, weight, color controls).",
+    "step_5": "Implement the XSL-FO generator function that takes the current state and formats it into proper XSL-FO 1.0 XML syntax. Bind this to Monaco as a read-only live preview.",
+    "step_6": "Wire up Undo/Redo (state snapshots), grid toggle, and LocalStorage persistence logic."
+  }
+}
