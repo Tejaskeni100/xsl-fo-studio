@@ -1,23 +1,64 @@
-- name: Install dependencies
-  run: |
-    cd frontend
-    npm ci
+name: Deploy to GitHub Pages
 
-- name: Build (production)
-  env:
-    REPO_NAME: ${{ github.event.repository.name }}
-  run: |
-    cd frontend
-    npx ng build \
-      --configuration production \
-      --base-href="/${REPO_NAME}/"
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
 
-- name: Prepare Pages artifact (SPA fallback + .nojekyll)
-  run: |
-    cp frontend/dist/xsl-fo-studio/browser/index.html frontend/dist/xsl-fo-studio/browser/404.html
-    touch frontend/dist/xsl-fo-studio/browser/.nojekyll
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 
-- name: Upload artifact
-  uses: actions/upload-pages-artifact@v3
-  with:
-    path: frontend/dist/xsl-fo-studio/browser
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          cd frontend
+          npm ci
+
+      - name: Build (production)
+        env:
+          REPO_NAME: ${{ github.event.repository.name }}
+        run: |
+          cd frontend
+          npx ng build \
+            --configuration production \
+            --base-href="/${REPO_NAME}/"
+
+      - name: Prepare Pages artifact (SPA fallback + .nojekyll)
+        run: |
+          cp frontend/dist/xsl-fo-studio/browser/index.html frontend/dist/xsl-fo-studio/browser/404.html
+          touch frontend/dist/xsl-fo-studio/browser/.nojekyll
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: frontend/dist/xsl-fo-studio/browser
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
