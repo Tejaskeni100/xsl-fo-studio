@@ -68,7 +68,12 @@
                   [ngModel]="asText(sel).fontFamily"
                   (ngModelChange)="update({ fontFamily: $event })"
                   data-testid="prop-font-family">
-            <option *ngFor="let f of fonts" [value]="f">{{ f }}</option>
+            <optgroup label="Standard">
+              <option *ngFor="let f of builtInFonts" [value]="f">{{ f }}</option>
+            </optgroup>
+            <optgroup label="Custom" *ngIf="store.state().customFonts.length > 0">
+              <option *ngFor="let f of store.state().customFonts" [value]="f.name">{{ f.name }} ★</option>
+            </optgroup>
           </select>
 
           <div class="grid-2">

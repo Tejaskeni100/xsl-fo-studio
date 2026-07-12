@@ -13,9 +13,18 @@ import { CanvasElement, TextElement, ImageElement, FONT_FAMILIES } from '../mode
 })
 export class PropertiesComponent {
   store = inject(EditorStore);
-  fonts = FONT_FAMILIES;
+  builtInFonts = FONT_FAMILIES;
 
   selected = this.store.selectedElement;
+
+  fonts = computed(() => {
+    const custom = this.store.state().customFonts.map(f => f.name);
+    return [...this.builtInFonts, ...custom];
+  });
+
+  isCustomFont(name: string): boolean {
+    return this.store.state().customFonts.some(f => f.name === name);
+  }
 
   asText(e: CanvasElement): TextElement { return e as TextElement; }
   asImage(e: CanvasElement): ImageElement { return e as ImageElement; }

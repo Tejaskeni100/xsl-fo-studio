@@ -1,22 +1,38 @@
 <aside class="xml-panel" [class.collapsed]="collapsed" data-testid="xml-preview-panel">
   <div class="xml-head">
     <div class="head-left">
-      <span class="dot"></span>
-      <span class="title">Live XSL-FO 1.0 Output</span>
+      <span class="dot" [class.dirty]="isDirty"></span>
+      <span class="title">{{ editable ? 'XSL-FO 1.0 Editor' : 'Live XSL-FO 1.0 Output' }}</span>
+      <span *ngIf="isDirty" class="dirty-tag mono">● unsaved</span>
     </div>
     <div class="head-right">
       <span class="meta mono">{{ lineCount }} lines · {{ byteSize }} B</span>
+
+      <button class="icon-btn" [class.active]="editable" (click)="toggleEditable()" title="Toggle edit mode" data-testid="xml-toggle-edit">
+        <span class="material-symbols-outlined">{{ editable ? 'edit' : 'edit_off' }}</span>
+      </button>
+
+      <button class="icon-btn" (click)="pasteInput.click()" title="Load .xsl / .xml file" data-testid="xml-load-file">
+        <span class="material-symbols-outlined">upload_file</span>
+      </button>
+      <input #pasteInput type="file" accept=".xml,.xsl,application/xml,text/xml" hidden (change)="onPasteFile(pasteInput)"/>
+
       <button class="icon-btn" (click)="toggleCollapse()" data-testid="xml-toggle-collapse" title="Collapse">
         <span class="material-symbols-outlined">{{ collapsed ? 'chevron_left' : 'chevron_right' }}</span>
       </button>
     </div>
   </div>
 
+  <div class="edit-banner" *ngIf="editable" data-testid="xml-edit-banner">
+    <span class="material-symbols-outlined">edit_note</span>
+    <span>Editable mode — paste or modify XSL-FO, then click <b>Apply</b> to render on canvas.</span>
+  </div>
+
   <div class="editor-shell">
     <div class="editor" #editorHost data-testid="xml-monaco"></div>
   </div>
 
-  <div class="xml-actions">
+  <div class="xml-actions" *ngIf="!editable; else editActions">
     <button class="btn-ghost" (click)="copyXml()" data-testid="xml-copy-btn">
       <span class="material-symbols-outlined">content_copy</span> Copy XML
     </button>
@@ -24,4 +40,18 @@
       <span class="material-symbols-outlined">download</span> Download .xsl
     </button>
   </div>
+
+  <ng-template #editActions>
+    <div class="xml-actions three">
+      <button class="btn-ghost" (click)="resetChanges()" data-testid="xml-reset-btn" [disabled]="!isDirty">
+        <span class="material-symbols-outlined">undo</span> Revert
+      </button>
+      <button class="btn-ghost" (click)="copyXml()" data-testid="xml-copy-btn">
+        <span class="material-symbols-outlined">content_copy</span> Copy
+      </button>
+      <button class="btn-primary" (click)="applyChanges()" data-testid="xml-apply-btn">
+        <span class="material-symbols-outlined">play_arrow</span> Apply
+      </button>
+    </div>
+  </ng-template>
 </aside>
