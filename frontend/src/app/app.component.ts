@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { EditorStore } from './editor.store';
 import { ToastService } from './toast.service';
+import { CustomFontService } from './custom-font.service';
 import { ToolboxComponent } from './components/toolbox.component';
 import { PropertiesComponent } from './components/properties.component';
 import { CanvasComponent } from './components/canvas.component';
@@ -18,6 +19,7 @@ import { XmlPreviewComponent } from './components/xml-preview.component';
 export class AppComponent {
   store = inject(EditorStore);
   toast = inject(ToastService);
+  private fonts = inject(CustomFontService); // side-effect: injects @font-face rules
 
   state = this.store.state;
   toasts = this.toast.toasts;

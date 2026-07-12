@@ -21,9 +21,25 @@
 }
 .head-left { display: flex; align-items: center; gap: 8px; }
 .head-right { display: flex; align-items: center; gap: 8px; }
-.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); box-shadow: 0 0 8px var(--success); }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); box-shadow: 0 0 8px var(--success); transition: background 150ms; }
+.dot.dirty { background: var(--warning); box-shadow: 0 0 8px var(--warning); }
 .title { font-size: 11px; font-weight: 600; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.12em; }
+.dirty-tag { font-size: 9px; color: var(--warning); text-transform: uppercase; letter-spacing: 0.1em; }
 .meta { font-size: 10px; color: var(--text-muted); }
+
+.edit-banner {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px;
+  background: rgba(234,179,8,0.08);
+  border-bottom: 1px solid rgba(234,179,8,0.3);
+  color: #FDE68A;
+  font-size: 11px;
+}
+.edit-banner .material-symbols-outlined { font-size: 16px; color: var(--warning); }
+.edit-banner b { color: #FEF3C7; font-weight: 600; }
+
+.xml-actions.three { grid-template-columns: 1fr 1fr 1fr; }
+.btn-ghost:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .editor-shell {
   flex: 1;

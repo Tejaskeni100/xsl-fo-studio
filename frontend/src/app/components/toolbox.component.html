@@ -110,6 +110,39 @@
   <div class="section">
     <div class="section-head">
       <span class="idx">04</span>
+      <span class="label">Custom fonts</span>
+    </div>
+    <div class="section-body">
+      <button class="btn-ghost full" (click)="fontFile.click()" data-testid="upload-font-btn">
+        <span class="material-symbols-outlined">font_download</span>
+        Upload font (.ttf, .otf, .woff, .woff2)
+      </button>
+      <input #fontFile type="file"
+             accept=".ttf,.otf,.woff,.woff2,font/ttf,font/otf,font/woff,font/woff2,application/font-woff,application/x-font-ttf,application/x-font-otf"
+             multiple hidden (change)="onFontUpload(fontFile)"/>
+
+      <div class="fonts-list" *ngIf="customFonts().length > 0; else emptyF" data-testid="custom-fonts-list">
+        <div *ngFor="let f of customFonts()" class="font-item"
+             [attr.data-testid]="'custom-font-' + f.id"
+             [style.font-family]="f.name">
+          <div class="font-info">
+            <div class="font-name">{{ f.name }}</div>
+            <div class="font-meta mono">{{ f.format }} · {{ f.filename }}</div>
+          </div>
+          <span class="icon-btn" (click)="removeFont(f.id, $event)" title="Remove">
+            <span class="material-symbols-outlined">delete</span>
+          </span>
+        </div>
+      </div>
+      <ng-template #emptyF>
+        <div class="empty-tpl">No custom fonts uploaded.</div>
+      </ng-template>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <span class="idx">05</span>
       <span class="label">Templates</span>
     </div>
     <div class="section-body">

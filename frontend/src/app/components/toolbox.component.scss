@@ -95,6 +95,24 @@
 .tpl-name { font-size: 12px; font-weight: 500; }
 .tpl-date { font-size: 9px; color: var(--text-muted); }
 
+.fonts-list {
+  display: flex; flex-direction: column; gap: 4px;
+  max-height: 180px; overflow-y: auto;
+  border-top: 1px solid var(--border);
+  padding-top: 8px;
+}
+.font-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 10px;
+  background: #0B0B0D; border: 1px solid var(--border);
+  border-radius: 3px;
+}
+.font-item:hover { border-color: var(--border-strong); }
+.font-info { min-width: 0; flex: 1; }
+.font-name { font-size: 13px; font-weight: 500; color: var(--text-primary); }
+.font-meta { font-size: 9px; color: var(--text-muted); margin-top: 2px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
+
+
 .empty-tpl {
   font-size: 11px; color: var(--text-muted);
   padding: 12px; text-align: center;

@@ -2,6 +2,16 @@ export type Unit = 'pt' | 'mm' | 'cm' | 'in';
 export type PageSizeKey = 'A4' | 'A5' | 'A6' | 'Letter' | 'Legal' | 'Custom';
 export type ImagePathMode = 'placeholder' | 'file' | 'base64';
 
+export interface CustomFont {
+  id: string;
+  /** Font family name used in CSS + XSL-FO */
+  name: string;
+  filename: string;
+  /** Base64 data URL */
+  dataUrl: string;
+  format: 'woff2' | 'woff' | 'truetype' | 'opentype';
+}
+
 export interface PageSizePreset {
   key: PageSizeKey;
   label: string;
@@ -75,6 +85,7 @@ export interface DocState {
   zoom: number;
   showGrid: boolean;
   showRulers: boolean;
+  customFonts: CustomFont[];
 }
 
 export const FONT_FAMILIES = [

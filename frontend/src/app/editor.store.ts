@@ -1,7 +1,7 @@
 import { Injectable, signal, computed, effect } from '@angular/core';
 import {
   DocState, PageDoc, CanvasElement, TextElement, ImageElement,
-  PageSizeKey, PAGE_PRESETS, Unit, ImagePathMode
+  PageSizeKey, PAGE_PRESETS, Unit, ImagePathMode, CustomFont
 } from './models';
 
 const STORAGE_KEY = 'xslfo-studio:current-doc';
@@ -36,6 +36,7 @@ function initialState(): DocState {
     zoom: 0.85,
     showGrid: false,
     showRulers: true,
+    customFonts: [],
   };
 }
 
@@ -80,7 +81,7 @@ export class EditorStore {
       try {
         const parsed = JSON.parse(raw) as DocState;
         if (parsed && parsed.pages && parsed.pages.length) {
-          this.state.set({ ...initialState(), ...parsed, selectedElementId: null });
+          this.state.set({ ...initialState(), ...parsed, customFonts: parsed.customFonts ?? [], selectedElementId: null });
         }
       } catch {}
     }
@@ -203,6 +204,19 @@ export class EditorStore {
   }
 
   setActivePage(id: string) { this.mutate(s => ({ ...s, activePageId: id, selectedElementId: null }), false); }
+
+  /* ---------- CUSTOM FONTS ---------- */
+  addCustomFont(font: CustomFont) {
+    this.mutate(s => ({ ...s, customFonts: [...s.customFonts, font] }));
+  }
+
+  removeCustomFont(id: string) {
+    this.mutate(s => ({ ...s, customFonts: s.customFonts.filter(f => f.id !== id) }));
+  }
+
+  replaceState(next: DocState) {
+    this.mutate(() => ({ ...next, selectedElementId: null }));
+  }
 
   /* ---------- ELEMENTS ---------- */
   addText() {

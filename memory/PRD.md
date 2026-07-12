@@ -45,13 +45,16 @@ Browser-based **Visual XSL-FO 1.0 Editor** (Angular 17+ SPA, frontend-only, no b
 - ✅ Full 3-panel layout with dark developer-tool aesthetic (Cabinet Grotesk display, IBM Plex Sans body, JetBrains Mono for code/coords).
 - ✅ All 24 feature groups verified end-to-end by testing agent (100% pass, no critical/minor issues).
 - ✅ Header with page tabs, undo/redo/grid/rulers/zoom, brand mark.
-- ✅ Toolbox: 4 sections (Document, Add elements, XML image src, Templates).
+- ✅ Toolbox: 5 sections (Document, Add elements, XML image src, Custom fonts, Templates).
 - ✅ Canvas: drag & 8-way resize, inline text edit (dblclick), rulers, grid overlay, empty-state hint.
-- ✅ Properties panel: transform (X/Y/W/H in pt), content mode (static vs. dynamic), full typography, image scaling, duplicate/delete.
+- ✅ Properties panel: transform (X/Y/W/H in pt), content mode (static vs. dynamic), full typography (built-in + uploaded custom fonts in dropdown), image scaling, duplicate/delete.
 - ✅ Monaco XML preview with vs-dark theme, live-syncs via `effect()` to state signal.
-- ✅ localStorage autosave of current doc + named template store.
+- ✅ **Custom font upload** (.ttf / .otf / .woff / .woff2) — injected as `@font-face` via CustomFontService, appears in font-family dropdown grouped under "Custom".
+- ✅ **Editable XML mode** — toggle read-only / edit; paste or upload an XSL-FO file, click Apply to parse via `XslFoParser` and re-render on canvas (round-trip); Revert / Copy / Apply / Load-file actions.
+- ✅ localStorage autosave of current doc + named template store (customFonts included).
 - ✅ Export/Import JSON, New document reset.
 - ✅ Multi-page tabs with per-page background/elements; generator produces valid XSL-FO 1.0.
+- ✅ GitHub Pages deploy workflow at `.github/workflows/deploy.yml` — auto-detects repo name for base-href.
 
 ## Backlog / P1
 - Debounce autosave to reduce localStorage writes during drag (reviewer note).

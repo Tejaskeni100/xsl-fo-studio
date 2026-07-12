@@ -2,7 +2,7 @@ import { Component, inject, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { EditorStore } from '../editor.store';
-import { PAGE_PRESETS, PageSizeKey, Unit, toPt, fromPt, ImagePathMode } from '../models';
+import { PAGE_PRESETS, PageSizeKey, Unit, toPt, fromPt, ImagePathMode, CustomFont } from '../models';
 import { ToastService } from '../toast.service';
 
 @Component({
@@ -29,6 +29,7 @@ export class ToolboxComponent {
   @ViewChild('bgFile') bgFile!: ElementRef<HTMLInputElement>;
   @ViewChild('imgFile') imgFile!: ElementRef<HTMLInputElement>;
   @ViewChild('importFile') importFile!: ElementRef<HTMLInputElement>;
+  @ViewChild('fontFile') fontFile!: ElementRef<HTMLInputElement>;
 
   state = this.store.state;
 
@@ -139,6 +140,63 @@ export class ToolboxComponent {
       this.store.newDocument();
     }
   }
+
+  /* ---- Custom fonts ---- */
+  onFontUpload(input: HTMLInputElement) {
+    const files = Array.from(input.files ?? []);
+    if (files.length === 0) return;
+    Promise.all(files.map(f => this.readFontFile(f))).then(fonts => {
+      fonts.forEach(f => this.store.addCustomFont(f));
+      this.toast.push(`${fonts.length} custom font${fonts.length > 1 ? 's' : ''} added`, 'success');
+      input.value = '';
+    }).catch(err => {
+      this.toast.push('Font upload failed: ' + err.message, 'error');
+      input.value = '';
+    });
+  }
+
+  private readFontFile(file: File): Promise<CustomFont> {
+    return new Promise((resolve, reject) => {
+      const format = detectFontFormat(file.name);
+      if (!format) return reject(new Error(`Unsupported font: ${file.name}`));
+      const reader = new FileReader();
+      reader.onload = () => {
+        const name = stripExt(file.name);
+        resolve({
+          id: 'font-' + Math.random().toString(36).slice(2, 9),
+          name,
+          filename: file.name,
+          dataUrl: reader.result as string,
+          format,
+        });
+      };
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(file);
+    });
+  }
+
+  removeFont(id: string, ev: Event) {
+    ev.stopPropagation();
+    this.store.removeCustomFont(id);
+    this.toast.push('Custom font removed', 'info');
+  }
+
+  customFonts() { return this.store.state().customFonts; }
+}
+
+function detectFontFormat(filename: string): 'woff2' | 'woff' | 'truetype' | 'opentype' | null {
+  const ext = filename.split('.').pop()?.toLowerCase();
+  switch (ext) {
+    case 'woff2': return 'woff2';
+    case 'woff': return 'woff';
+    case 'ttf': return 'truetype';
+    case 'otf': return 'opentype';
+    default: return null;
+  }
+}
+
+function stripExt(filename: string): string {
+  return filename.replace(/\.[^.]+$/, '');
 }
 
 function round2(n: number) { return Math.round(n * 100) / 100; }
