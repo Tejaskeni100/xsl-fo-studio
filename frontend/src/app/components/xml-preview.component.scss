@@ -10,6 +10,22 @@
     width 200ms ease-out,
     min-width 200ms ease-out;
   overflow: hidden;
+  position: relative;
+  z-index: 2;
+}
+.xml-panel.dragged {
+  position: fixed;
+  z-index: 1000;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+}
+.resize-handle {
+  position: absolute;
+  top: 0;
+  left: -5px;
+  width: 10px;
+  height: 100%;
+  cursor: ew-resize;
+  z-index: 3;
 }
 .xml-panel.collapsed {
   width: 40px;
@@ -42,6 +58,11 @@
   padding: 10px 12px;
   border-bottom: 1px solid var(--border);
   background: var(--bg-panel);
+  cursor: grab;
+  user-select: none;
+}
+.xml-head:active {
+  cursor: grabbing;
 }
 .head-left {
   display: flex;

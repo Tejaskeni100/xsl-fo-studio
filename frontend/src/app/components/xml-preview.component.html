@@ -1,9 +1,19 @@
 <aside
+  #panelRef
   class="xml-panel"
   [class.collapsed]="collapsed"
+  [class.dragged]="isDragged"
+  [style.width.px]="collapsed ? 40 : panelWidth"
+  [style.left.px]="isDragged ? panelLeft : null"
+  [style.top.px]="isDragged ? panelTop : null"
   data-testid="xml-preview-panel"
 >
-  <div class="xml-head">
+  <div
+    class="resize-handle"
+    (mousedown)="startResize($event)"
+    title="Resize panel"
+  ></div>
+  <div class="xml-head" (mousedown)="startDrag($event)">
     <div class="head-left">
       <span class="dot" [class.dirty]="isDirty"></span>
       <span class="title">{{
@@ -41,6 +51,16 @@
         hidden
         (change)="onPasteFile(pasteInput)"
       />
+
+      <button
+        class="icon-btn"
+        [class.active]="wrapText"
+        (click)="toggleWrapText()"
+        title="Toggle wrap text"
+        data-testid="xml-toggle-wrap"
+      >
+        <span class="material-symbols-outlined">wrap_text</span>
+      </button>
 
       <button
         class="icon-btn collapse-toggle"
