@@ -1,4 +1,13 @@
-import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy, inject, effect } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  OnDestroy,
+  inject,
+  effect,
+  HostListener,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { EditorStore } from '../editor.store';
 import { XslFoGenerator } from '../xsl-fo-generator.service';
@@ -19,14 +28,29 @@ export class XmlPreviewComponent implements AfterViewInit, OnDestroy {
   parser = inject(XslFoParser);
   toast = inject(ToastService);
 
-  @ViewChild('editorHost', { static: true }) editorHost!: ElementRef<HTMLDivElement>;
+  @ViewChild('editorHost', { static: true })
+  editorHost!: ElementRef<HTMLDivElement>;
+  @ViewChild('panelRef', { static: true }) panelRef!: ElementRef<HTMLElement>;
   private editor: monaco.editor.IStandaloneCodeEditor | null = null;
 
   collapsed = false;
   editable = false;
   isDirty = false;
+  wrapText = false;
   currentXml = '';
+  panelWidth = 440;
+  panelLeft = 0;
+  panelTop = 0;
+  isDragged = false;
   private ignoreNextChange = false;
+  private isDragging = false;
+  private isResizing = false;
+  private dragStartX = 0;
+  private dragStartY = 0;
+  private startLeft = 0;
+  private startTop = 0;
+  private resizeStartX = 0;
+  private startWidth = 440;
 
   constructor() {
     effect(() => {
@@ -74,13 +98,69 @@ export class XmlPreviewComponent implements AfterViewInit, OnDestroy {
     });
 
     this.editor.onDidChangeModelContent(() => {
-      if (this.ignoreNextChange) { this.ignoreNextChange = false; return; }
+      if (this.ignoreNextChange) {
+        this.ignoreNextChange = false;
+        return;
+      }
       if (!this.editable) return;
       this.isDirty = true;
     });
   }
 
-  ngOnDestroy() { this.editor?.dispose(); }
+  ngOnDestroy() {
+    this.stopInteraction();
+    this.editor?.dispose();
+  }
+
+  @HostListener('window:mousemove', ['$event'])
+  onMouseMove(event: MouseEvent) {
+    if (this.isDragging) {
+      event.preventDefault();
+      const deltaX = event.clientX - this.dragStartX;
+      const deltaY = event.clientY - this.dragStartY;
+      this.panelLeft = Math.max(0, this.startLeft + deltaX);
+      this.panelTop = Math.max(0, this.startTop + deltaY);
+    }
+
+    if (this.isResizing) {
+      event.preventDefault();
+      const deltaX = event.clientX - this.resizeStartX;
+      const nextWidth = this.startWidth - deltaX;
+      this.panelWidth = Math.min(720, Math.max(280, nextWidth));
+    }
+  }
+
+  @HostListener('window:mouseup')
+  onMouseUp() {
+    this.stopInteraction();
+  }
+
+  startDrag(event: MouseEvent) {
+    if ((event.target as HTMLElement)?.closest('button')) return;
+    const rect = this.panelRef.nativeElement.getBoundingClientRect();
+    this.isDragged = true;
+    this.isDragging = true;
+    this.dragStartX = event.clientX;
+    this.dragStartY = event.clientY;
+    this.startLeft = rect.left;
+    this.startTop = rect.top;
+    document.body.style.userSelect = 'none';
+  }
+
+  startResize(event: MouseEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isResizing = true;
+    this.resizeStartX = event.clientX;
+    this.startWidth = this.panelWidth;
+    document.body.style.userSelect = 'none';
+  }
+
+  private stopInteraction() {
+    this.isDragging = false;
+    this.isResizing = false;
+    document.body.style.userSelect = '';
+  }
 
   toggleEditable() {
     this.editable = !this.editable;
@@ -103,7 +183,10 @@ export class XmlPreviewComponent implements AfterViewInit, OnDestroy {
       this.isDirty = false;
       this.toast.push('XML applied to canvas', 'success');
     } catch (err: any) {
-      this.toast.push('Parse failed: ' + (err?.message || 'Invalid XSL-FO'), 'error');
+      this.toast.push(
+        'Parse failed: ' + (err?.message || 'Invalid XSL-FO'),
+        'error',
+      );
     }
   }
 
@@ -155,8 +238,18 @@ export class XmlPreviewComponent implements AfterViewInit, OnDestroy {
     reader.readAsText(file);
   }
 
-  get lineCount() { return (this.editor?.getValue() ?? this.currentXml).split('\n').length; }
-  get byteSize() { return new Blob([this.editor?.getValue() ?? this.currentXml]).size; }
+  get lineCount() {
+    return (this.editor?.getValue() ?? this.currentXml).split('\n').length;
+  }
+  get byteSize() {
+    return new Blob([this.editor?.getValue() ?? this.currentXml]).size;
+  }
+
+  toggleWrapText() {
+    this.wrapText = !this.wrapText;
+    this.editor?.updateOptions({ wordWrap: this.wrapText ? 'on' : 'off' });
+    this.editor?.layout();
+  }
 
   toggleCollapse() {
     this.collapsed = !this.collapsed;
