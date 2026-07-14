@@ -13,7 +13,7 @@ import { EditorStore } from '../editor.store';
 import { XslFoGenerator } from '../xsl-fo-generator.service';
 import { XslFoParser } from '../xsl-fo-parser.service';
 import { ToastService } from '../toast.service';
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
+import * as monaco from 'monaco-editor';
 
 @Component({
   selector: 'app-xml-preview',
@@ -97,6 +97,8 @@ export class XmlPreviewComponent implements AfterViewInit, OnDestroy {
       padding: { top: 12, bottom: 12 },
     });
 
+    setTimeout(() => this.refreshEditorLayout(), 0);
+
     this.editor.onDidChangeModelContent(() => {
       if (this.ignoreNextChange) {
         this.ignoreNextChange = false;
@@ -127,12 +129,19 @@ export class XmlPreviewComponent implements AfterViewInit, OnDestroy {
       const deltaX = event.clientX - this.resizeStartX;
       const nextWidth = this.startWidth - deltaX;
       this.panelWidth = Math.min(720, Math.max(280, nextWidth));
+      this.refreshEditorLayout();
     }
   }
 
   @HostListener('window:mouseup')
   onMouseUp() {
     this.stopInteraction();
+    this.refreshEditorLayout();
+  }
+
+  @HostListener('window:resize')
+  onWindowResize() {
+    this.refreshEditorLayout();
   }
 
   startDrag(event: MouseEvent) {
@@ -162,9 +171,14 @@ export class XmlPreviewComponent implements AfterViewInit, OnDestroy {
     document.body.style.userSelect = '';
   }
 
+  private refreshEditorLayout() {
+    requestAnimationFrame(() => this.editor?.layout());
+  }
+
   toggleEditable() {
     this.editable = !this.editable;
     this.editor?.updateOptions({ readOnly: !this.editable });
+    this.refreshEditorLayout();
     if (!this.editable && this.isDirty) {
       // Discard by resyncing from state
       this.isDirty = false;
@@ -248,11 +262,11 @@ export class XmlPreviewComponent implements AfterViewInit, OnDestroy {
   toggleWrapText() {
     this.wrapText = !this.wrapText;
     this.editor?.updateOptions({ wordWrap: this.wrapText ? 'on' : 'off' });
-    this.editor?.layout();
+    this.refreshEditorLayout();
   }
 
   toggleCollapse() {
     this.collapsed = !this.collapsed;
-    setTimeout(() => this.editor?.layout(), 200);
+    setTimeout(() => this.refreshEditorLayout(), 200);
   }
 }
