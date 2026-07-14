@@ -42,6 +42,9 @@
               "src/styles.scss"
             ],
             "scripts": [],
+            "loader": {
+              ".ttf": "file"
+            },
             "allowedCommonJsDependencies": ["monaco-editor"]
           },
           "configurations": {
