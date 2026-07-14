@@ -13,7 +13,7 @@ import { EditorStore } from '../editor.store';
 import { XslFoGenerator } from '../xsl-fo-generator.service';
 import { XslFoParser } from '../xsl-fo-parser.service';
 import { ToastService } from '../toast.service';
-import * as monaco from 'monaco-editor';
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 
 @Component({
   selector: 'app-xml-preview',
